@@ -20,9 +20,9 @@ sub parse_index {
     open (INDEX, "$srcdir/index.html") || die;
     while (<INDEX>) {
 	chomp;
-	$toc = 1, $level = 0, next if m%^<h2>Table of Contents</h2>$%;
-	$level++, next if $toc && /^<ul>$/;
-	if ($toc && m%</ul>$%) {
+	$toc = 1, $level = 0, next if m%^<h2.*>Table of Contents</h2>$%;
+	$level++, next if $toc && /^\s*<ul/;
+	if ($toc && m%</ul>%) {
 	    $level--;
 	    $toc = 0 if $level == 0;
 	    next;
@@ -30,7 +30,7 @@ sub parse_index {
 	next if !$toc;
 
 	if (my ($file, $frag, $title)
-	    = m%<a (?:name=\"[^\"]+\"\s+)?href=\"([^\"\#]*)(\#[^\"]*)?\">(.*)</a>%) {
+	    = m%<a (?:(?:name|id)=\"[^\"]+\"\s+)?href=\"([^\"\#]*)(\#[^\"]*)?\">(.*)</a>%) {
 	    if (!defined ($fntoindex{$file})) {
 		push (@nodes, "$level\0$file\0$title");
 		$fntoindex{$file} = $#nodes;
@@ -53,7 +53,7 @@ sub parse_nodes {
 	    if (my ($node) = /^(?:Node:)?<a name=\"([^\"]*)\">([^<]*)</) {
 		$headnode{$srcfn} = $node;
 		last;
-	    } elsif (my ($target) = /^<meta http-equiv=\"refresh\" content=\"0; url=([^\"]*)\">/) {
+	    } elsif (my ($target) = /^<meta http-equiv=\"refresh\" content=\"0; url=([^\"]*)\">/i) {
 		# This compensates for an apparent Texinfo 4.8 bug.
 		$target =~ s/#(\d+)/#g_t$1/;
 
@@ -167,8 +167,14 @@ sub linkimg {
     return "<a href=\"$txt\"><img border=0 src=\"$png\" alt=\"[Click here for plain-text rendering]\"></a>";
 }
 
+link_or_cp ("$srcdir/index.html", "$dstdir/index.html");
+link_or_cp ("$srcdir/Index.html", "$dstdir/Index.html");
+
 for my $d (@srcfiles) {
     next if defined ($refresh{$d});
+
+    # This code should be adapted to properly process these files, but currently it doesn't.
+    next if $d eq 'Index.html' || $d eq 'index.html';
 
     my ($div) = 0;
     my ($saw_div) = 0;
@@ -387,8 +393,12 @@ for my $d (@srcfiles) {
 	    next;
 	}
 
+	if (/HTMLPP/ && /-->$/) {
+	    $_ .= $srclines[++$srcln];
+	    chomp;
+	}
 	if (my ($leader, $file, $piece, $name, $html_node, $first_piece, $op)
-	    = /^(.*)<!-- HTMLPP: file='(.*)' -->(\d+)\. \&lt;<a name="([^"]+)"><\/a>(.*) (\d+)\&gt; (\+?=)\s*$/) {
+	    = /^(.*)<!-- HTMLPP: file='(.*)' -->(\d+)\. \&lt;<a (?:class="[^"]*" )?(?:name|id)="([^"]+)"><\/a>(.*) (\d+)\&gt; ((?:\+|<em class="math">\+<\/em>)?=)\s*$/) {
 	    die "$srcdir/$file: does not exist (run `texiweb --segments')\n"
 		if ! -e "$srcdir/$file";
 
@@ -418,7 +428,7 @@ sub link_or_cp {
     my ($src, $dst) = @_;
     if (!link ($src, $dst)) {
 	open (S, "<$src") || die "$src: open: $!\n";
-	open (D, "<$dst") || die "$dst: create: $!\n";
+	open (D, ">$dst") || die "$dst: create: $!\n";
 	my ($s);
 	sysread (S, $s, -s $src);
 	syswrite (D, $s);
