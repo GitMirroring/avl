@@ -3,6 +3,7 @@ WEAVE_FLAGS =
 #TANGLE_FLAGS = -l # put #line directives in source files
 CFLAGS = -g -W -Wall -ansi -pedantic # enable many GCC warnings
 LDFLAGS = -g
+MAKEINFO = makeinfo
 
 ALL_MAKEINFO_FLAGS = --number-sections $(MAKEINFO_FLAGS)
 
@@ -152,13 +153,13 @@ libavl.ps: libavl.dvi
 libavl.pdf: libavl.texi $(pdf_images)
 	TEX=$(TEX) texi2pdf --batch --quiet $<
 libavl.info: libavl.texi $(txt_images)
-	makeinfo $(ALL_MAKEINFO_FLAGS) $<
+	$(MAKEINFO) $(ALL_MAKEINFO_FLAGS) $<
 libavl.text: libavl.texi $(txt_images)
-	-makeinfo $(ALL_MAKEINFO_FLAGS) -D PLAINTEXT		\
+	-$(MAKEINFO) $(ALL_MAKEINFO_FLAGS) -D PLAINTEXT		\
 		--no-headers --no-split $< -o $@
 libavl.html: libavl.texi $(png_images) texiweb $(w_source)
 	rm -rf $@ $@.t1 $@.t2
-	makeinfo --html $(ALL_MAKEINFO_FLAGS) --output=$@.t1 $<
+	$(MAKEINFO) --html $(ALL_MAKEINFO_FLAGS) --output=$@.t1 $<
 	./texiweb tangle --segments libavl.w $@.t1
 	mkdir $@.t2
 	./htmlpp $@.t1 $@.t2 .
