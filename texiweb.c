@@ -1606,7 +1606,7 @@ open_header_file (char *line)
       "@set TIMES *\n",
       "@set RARR ->\n",
       "@set INV !\n",
-      "@set SP @ @c\n",
+      "@set SP @w{ }@c\n",
       "@end ifnottex\n",
       "\n",
       "@ifnottex\n",
