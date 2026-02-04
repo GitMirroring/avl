@@ -179,7 +179,7 @@ libavl.html: libavl.texi $(png_images) texiweb $(w_source)
 	./epstopdf $< || touch $@
 
 texitree: texitree.o
-	$(CC) -lm $(LDFLAGS) $< $(LOADLIBS) $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $< $(LOADLIBS) $(LDLIBS) -lm -o $@
 
 version = 2.0.3
 distdir: $(dist_files)
