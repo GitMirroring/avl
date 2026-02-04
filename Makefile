@@ -225,7 +225,7 @@ maintainer-clean: distclean
 	rm -f $(png_images) $(pdf_images) $(built_sources)
 	rm -f libavl.info*
 
-.PHONY: all 
+.PHONY: all
 .PHONY: docs info dvi eps txt png
 .PHONY: programs sources
 .PHONY: distdir dist check checksrc
