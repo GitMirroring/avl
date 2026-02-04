@@ -147,11 +147,11 @@ prb-test.c prb.c prb.h: prb.w
 libavl.texi: $(w_source) texiweb
 	./texiweb $(WEAVE_FLAGS) weave libavl.w $@
 libavl.dvi: libavl.texi $(eps_images)
-	TEX=$(TEX) texi2dvi --batch $<
+	TEX=$(TEX) texi2dvi --build=tidy --batch $<
 libavl.ps: libavl.dvi
 	dvips -P psfonts -o $@ $<
 libavl.pdf: libavl.texi $(pdf_images)
-	TEX=$(TEX) texi2pdf --batch --quiet $<
+	TEX=$(TEX) texi2pdf --build=tidy --batch --quiet $<
 libavl.info: libavl.texi $(txt_images)
 	$(MAKEINFO) $(ALL_MAKEINFO_FLAGS) $<
 libavl.text: libavl.texi $(txt_images)
