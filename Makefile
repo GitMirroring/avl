@@ -1,7 +1,7 @@
 TEX = etex # substitute tex if you lack etex
 WEAVE_FLAGS =
 #TANGLE_FLAGS = -l # put #line directives in source files
-CFLAGS = -g -W -Wall -ansi -pedantic # enable many GCC warnings
+CFLAGS = -g -W -Wall -ansi -pedantic -Wno-unused-parameter # enable many GCC warnings
 LDFLAGS = -g
 MAKEINFO = makeinfo
 
